@@ -85,7 +85,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue"
 
 .hidden{display:none!important}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1/dist/face-api.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -198,7 +197,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue"
     </div>
   </div>
 </div>
-
 <script>
 var DB_KEY='facedb_v3';
 var db=[], verifyStream=null, enrollStream=null, demoStream=null, ready=false;
@@ -213,12 +211,12 @@ async function initModels(){
   var dot=document.getElementById('sDot'),txt=document.getElementById('sTxt'),bar=document.getElementById('lbar');
   document.getElementById('lbarWrap').classList.remove('hidden');
   var MODEL_URL = '../models';
-  var steps=[
-        [function(){return faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);},'人脸检测',25],
-        [function(){return faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);},'特征点',55],
-        [function(){return faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);},'识别模型',80],
-        [function(){return faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);},'表情模型',100],
-      ];
+    var steps=[
+          [function(){return faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);},'人脸检测',25],
+          [function(){return faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);},'特征点',55],
+          [function(){return faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);},'识别模型',80],
+          [function(){return faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);},'表情模型',100],
+        ];
   try{
     for(var i=0;i<steps.length;i++){
       var s=steps[i];txt.textContent='加载：'+s[1]+'...';
