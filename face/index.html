@@ -212,7 +212,7 @@ loadDB();
 async function initModels(){
   var dot=document.getElementById('sDot'),txt=document.getElementById('sTxt'),bar=document.getElementById('lbar');
   document.getElementById('lbarWrap').classList.remove('hidden');
-  var MODEL_URL = './models';
+  var MODEL_URL = '../models';
   var steps=[
         [function(){return faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);},'人脸检测',25],
         [function(){return faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);},'特征点',55],
