@@ -249,7 +249,8 @@ async function startCam(mode){
     var stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facingMode,width:{ideal:1280}}});
     var vid=document.getElementById(mode+'Vid');
     vid.srcObject=stream; vid.classList.remove('hidden');
-    document.getElementById(mode+'Ph').classList.add('hidden');
+    try{await vid.play();}catch(e){}
+    var ph=document.getElementById(mode+'Ph'); if(ph)ph.classList.add('hidden');
     if(mode==='verify'){
       verifyStream=stream;
       document.getElementById('verifyPrev').classList.add('hidden');
@@ -422,8 +423,15 @@ async function enrollFace(){
   if(!name)return alert('请输入姓名');
   var prev=document.getElementById('enrollPrev');
   if(prev.classList.contains('hidden')||!prev.src)return alert('请上传照片或拍照');
-  setProgress(20,'检测人脸中...');
+  var btn=document.querySelector('#p-enroll .btn-p');
+  var nameInput=document.getElementById('enrollName');
+  btn.disabled=true; btn.textContent='录入中...';
+  nameInput.disabled=true;
+  setProgress(10,'准备中...');
+  await new Promise(function(r){setTimeout(r,30);});
   try{
+    setProgress(30,'检测人脸中...');
+    await new Promise(function(r){setTimeout(r,30);});
     var det=await faceapi.detectSingleFace(prev,new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.4})).withFaceLandmarks(true).withFaceDescriptor();
     if(!det){setProgress(0,'未检测到人脸，请换清晰正脸照');return;}
     setProgress(80,'提取特征成功...');
@@ -432,8 +440,10 @@ async function enrollFace(){
     var idx=db.findIndex(function(f){return f.name===name;});
     if(idx>=0)db[idx]=entry;else db.push(entry);
     saveDB(); setProgress(100,'✓ "'+name+'" 录入成功！');
-    setTimeout(function(){document.getElementById('enrollName').value='';prev.classList.add('hidden');prev.src='';document.getElementById('enrollUpload').classList.remove('hidden');document.getElementById('enrollProg').classList.add('hidden');document.getElementById('enrollFileInput').value='';},1500);
+    await new Promise(function(r){setTimeout(r,800);});
+    document.getElementById('enrollName').value='';prev.classList.add('hidden');prev.src='';document.getElementById('enrollUpload').classList.remove('hidden');document.getElementById('enrollProg').classList.add('hidden');document.getElementById('enrollFileInput').value='';
   }catch(e){setProgress(0,'录入失败：'+e.message);}
+  finally{btn.disabled=false;btn.textContent='录入人脸';nameInput.disabled=false;}
 }
 function setProgress(pct,msg){document.getElementById('enrollProg').classList.remove('hidden');document.getElementById('enrollBar').style.width=pct+'%';document.getElementById('enrollStatus').textContent=msg;}
 
@@ -449,13 +459,13 @@ async function runVerify(){
   var btn=document.getElementById('verifyBtn');btn.textContent='识别中...';btn.disabled=true;
   try{
     var det=await faceapi.detectSingleFace(src,new faceapi.TinyFaceDetectorOptions({inputSize:416,scoreThreshold:0.5})).withFaceLandmarks(true).withFaceDescriptor();
-    if(!det){showResult(null,'fail','未检测到人脸','请确保人脸清晰可见');btn.textContent='再次识别';btn.disabled=false;return;}
+    if(!det){showResult(null,'fail','未检测到人脸','请确保人脸清晰可见');return;}
     var labeled=db.map(function(f){return new faceapi.LabeledFaceDescriptors(f.name,[new Float32Array(f.descriptor)]);});
     var match=new faceapi.FaceMatcher(labeled,0.5).findBestMatch(det.descriptor);
     if(match.label==='unknown'){showResult(null,'fail','未录入人员','最高相似度 '+Math.round((1-match.distance)*100)+'%');}
     else{var conf=Math.round((1-match.distance)*100);var person=db.find(function(f){return f.name===match.label;});showResult(person,'pass',match.label,'已录入 · 置信度 '+conf+'%',conf);}
-  }catch(e){showResult(null,'info','识别出错',e.message);}
-  btn.textContent='再次识别';btn.disabled=false;
+  }catch(e){try{showResult(null,'info','识别出错',e.message);}catch(_){}}
+  finally{btn.textContent='再次识别';btn.disabled=false;}
 }
 function showResult(person,type,title,sub,conf){
   var box=document.getElementById('verifyResult');
