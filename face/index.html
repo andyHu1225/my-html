@@ -146,10 +146,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue"
           <div class="cam-box"><video id="enrollVid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video></div>
           <button id="enrollFlipBtn" class="flip-btn hidden" onclick="flipCam('enroll')">🔄 后置</button>
         </div>
-        <button class="btn btn-p" onclick="captureCam('enroll')">拍照</button>
+        <button id="enrollCaptureBtn" class="btn btn-p" onclick="captureCam('enroll')">拍照</button>
       </div>
       <button class="btn btn-o" id="enrollCamBtn" onclick="toggleCam('enroll')" style="margin-bottom:10px">摄像头拍照</button>
-      <button class="btn btn-p" onclick="enrollFace()">录入人脸</button>
+      <button id="enrollSubmitBtn" class="btn btn-p" onclick="enrollFace()">录入人脸</button>
       <div class="prog-wrap hidden" id="enrollProg">
         <div class="prog-bar"><div class="prog-inner" id="enrollBar" style="width:0"></div></div>
         <p class="prog-msg" id="enrollStatus"></p>
@@ -423,7 +423,7 @@ async function enrollFace(){
   if(!name)return alert('请输入姓名');
   var prev=document.getElementById('enrollPrev');
   if(prev.classList.contains('hidden')||!prev.src)return alert('请上传照片或拍照');
-  var btn=document.querySelector('#p-enroll .btn-p');
+  var btn=document.getElementById('enrollSubmitBtn');
   var nameInput=document.getElementById('enrollName');
   btn.disabled=true; btn.textContent='录入中...';
   nameInput.disabled=true;
